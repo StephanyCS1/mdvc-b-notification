@@ -1,4 +1,4 @@
-package com.bimoney.msvcnotifications.Ports.Out;
+package com.bimoney.msvcnotifications.Utils;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ThirdPartyValidation {
+public class TailNotificationsToProcess {
 
-    String identification;
+    private String url;
+    private String json;
 
 }

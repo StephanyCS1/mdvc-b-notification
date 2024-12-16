@@ -9,6 +9,8 @@ public interface PlanillaRepository extends JpaRepository<Planilla, Long> {
 
     void savePlanilla(Planilla planilla);
 
+    void updatePlanilla(String response);
+
     Planilla findByTransaction(String transaction);
 
 }

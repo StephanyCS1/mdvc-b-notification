@@ -1,66 +1,80 @@
 package com.bimoney.msvcnotifications.Ports.Handler;
 
+import com.bimoney.msvcnotifications.Ports.ExternalSearch.Request.CreateThirdParty;
 import com.bimoney.msvcnotifications.Ports.In.NotificationDataEntry;
-import com.bimoney.msvcnotifications.Ports.Out.ThirdPartyValidation;
+import com.bimoney.msvcnotifications.Ports.ExternalSearch.Request.ThirdPartyValidation;
+import com.bimoney.msvcnotifications.Services.Implement.NotificationImplement;
+import com.bimoney.msvcnotifications.Services.Implement.PlanillaImplement;
+import com.bimoney.msvcnotifications.Tools.InternalSearch.UsersParametersSearch;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.Set;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 
+@Slf4j
+@Service
 public class HandlerNotification {
 
-    private String TRANSFER_TYPE_COBRO_BOLSILLO = "66";
-    private String USERNAME_COTECH = "115673";
-    private String USERNAME_TAXISLIBRES = "415744";
-    private String USERNAME_RADIOTAXI = "8370083";
-    private String USERNAME_TAXIMPERIAL = "2769930";
-    private String USERNAME_VIASEGUROS = "2792981";
-    private String RODAMIENTO = "RODAMIENTO";
-    private static final Set<String> TRANSFER_TYPES_COMERCIOS = Set.of("36", "32");
-    private static final Set<String> REFERENCIAS_ISLEROS = Set.of("GAS", "GASOLINA");
-    private Set<String> APP = Set.of("APLICACION","APP");
+    Timer timer = null;
+
+    @Autowired
+    NotificationImplement notificationImplement;
+
+    public void validations(NotificationDataEntry data) throws Exception {
 
 
-    UserSearch userSearch = null;
-
-    public void validations(NotificationData data, NotificationDataEntry dataEntry) {
-
-        boolean isToTaxisLibres = data.getToMember().equals(USERNAME_TAXISLIBRES);
-        boolean isToCotech = data.getToMember().equals(USERNAME_COTECH);
-        boolean isParkingAir = data.getToMember().equals(USERNAME_TAXIMPERIAL);
-        boolean isViaSeguros = data.getToMember().equals(USERNAME_VIASEGUROS);
-        boolean isPlanilla = data.getToMember().equals(USERNAME_RADIOTAXI);
-        boolean isRodamiento = data.getDescription().equalsIgnoreCase(RODAMIENTO) &&
-                dataEntry.getToMember().equals(USERNAME_TAXISLIBRES);
-        boolean isCobroBolsillo = data.getTransferTypeId().equals(TRANSFER_TYPE_COBRO_BOLSILLO);
-        boolean isCommerceType = TRANSFER_TYPES_COMERCIOS.contains(data.getTransferTypeId());
-        boolean isFuelStationReference = REFERENCIAS_ISLEROS.contains(data.getReferencia());
-        boolean notCommerce = isToCotech || isToTaxisLibres;
-        boolean isAppReference = !isCommerceType && APP.contains(data.getReferencia());
-
-        if(isToCotech || isToTaxisLibres){
-            dataEntry.setDescription(dataEntry.getReferencia1());
-            dataEntry.setReferencia1("");
-        }
-
-        String referencia = data.getReferencia().toUpperCase();
-
-        // notificar aplicacion
-        if(isAppReference && notCommerce && !isFuelStationReference){
-            String identificationUser = thirtValidation(data.getToMember());
-            String toMember = dataEntry.getToMember().equals(USERNAME_COTECH) ? dataEntry.getToMember() : USERNAME_COTECH;
 
 
-            //notificar rodamiento
-        } else if (isRodamiento) {
+        // Usar un Timer para ejecutar la tarea después de 10 segundos
+        Timer timer = new Timer();
 
-        }
+        TimerTask task = new TimerTask() {
+            @Override
+            public void run() {
+                try {
 
+                } catch (Exception e) {
+                    // Registrar el error en los logs para entender el fallo
+                    log.info("Error al ejecutar la tarea programada: " + e.getMessage());
+                    e.printStackTrace();
+                } finally {
+                    // Cancelar el Timer después de ejecutar la tarea
+                    timer.cancel();
+                }
+            }
+        };
+
+        // Programar la tarea para que se ejecute después de 10 segundos
+        timer.schedule(task, 10000);  // 10000 ms = 10 segundos
     }
 
-    public String thirtValidation(String toMember){
-        userSearch = new UserSearch();
+    /**
+     * Flujo para validar el tercero, de no existir se envia la creacion
+     *
+     * @param data
+     * @return boolean
+     * @throws Exception
+     */
+    public boolean ThirdPartyValidation(NotificationDataEntry data) throws Exception {
+        String name = new UsersParametersSearch().getName(data.getFromMember());
+        String phone = new UsersParametersSearch().getValueByField(data.getFromMember(), "8");
+        String mail = new UsersParametersSearch().getEmail(data.getFromMember());
+        ProcessExternalUser third = new ProcessExternalUser();
+        boolean newThirdCreated = false;
 
-        new ThirdPartyValidation(toMember);
+        if (!third.thirdUserExist(new ThirdPartyValidation(data.getNodeidentificacion()))) {
+            CreateThirdParty newThirdParty = new CreateThirdParty(
+                    data.getNodeidentificacion(), name, phone, mail
+            );
+            newThirdCreated = third.createNewThirdParty(newThirdParty);
+        }
 
+        return newThirdCreated;
     }
 
 

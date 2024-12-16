@@ -18,9 +18,9 @@ public class PostRequest {
         // Construye la solicitud POST
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(new URI(url)) // URL de la petición
-                .timeout(Duration.ofSeconds(20)) // Tiempo de espera para la respuesta
-                .header("Content-Type", "application/json") // Cabecera de tipo de contenido
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody)) // Cuerpo en formato JSON
+                .timeout(Duration.ofSeconds(20))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         // Enviar la solicitud y obtener la respuesta

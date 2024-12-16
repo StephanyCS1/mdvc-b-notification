@@ -17,12 +17,12 @@ public class NotificationDataEntry {
     private String Nodeidentificacion;
     private String emailpagador;
     private String pagador;
-    private String direccionenvio;
-    private String telefonodeenvio;
+//    private String direccionenvio;
+//    private String telefonodeenvio;
     private String nombrecomprador;
-    private String paisdeenvio;
-    private String ciudaddeenvio;
-    private String codigopostaldeenvio;
+//    private String paisdeenvio;
+//    private String ciudaddeenvio;
+//    private String codigopostaldeenvio;
     private String referencia1;
     private String referencia2;
     private String referencia3;
